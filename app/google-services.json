@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "43999905492",
+    "firebase_url": "https://kardex-53e0d.firebaseio.com",
+    "project_id": "kardex-53e0d",
+    "storage_bucket": "kardex-53e0d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:43999905492:android:fd65677b929839aa",
+        "android_client_info": {
+          "package_name": "com.example.kardex"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "43999905492-jr9gptbs02kjghslb7gcr4ag66bqo01a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.kardex",
+            "certificate_hash": "f7fd0d8f39c8348a74a79bcceffe6f8283d18287"
+          }
+        },
+        {
+          "client_id": "43999905492-1ojge9al8dm7nqsbs2dpm0p5tikv77f1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAYLxjXVLx7am6vnT8VhgdfAR2177jwTGA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "43999905492-1ojge9al8dm7nqsbs2dpm0p5tikv77f1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
