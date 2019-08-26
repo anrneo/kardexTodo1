@@ -57,7 +57,7 @@ public class LoginActivity extends AppCompatActivity {
         final Button loginButton = findViewById(R.id.login);
         final ProgressBar loadingProgressBar = findViewById(R.id.loading);
 
-        usernameEditText.setText("seller@gmail.co");
+        usernameEditText.setText("seller@gmail.com");
         passwordEditText.setText("123456");
 
 
