@@ -36,9 +36,9 @@ import java.util.Random;
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "TAG";
-    private TextView mTextProd, mTextCant, mtextUser;
+    private TextView mt1, mt2;
     private Spinner mProductName ;
-    private EditText   mCant;
+    private EditText   mCant, mSumCant;
 
     private DatabaseReference mDatabase;// ...
 
@@ -49,49 +49,46 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-       // mDatabase = FirebaseDatabase.getInstance().getReference();
 
+        mProductName = findViewById(R.id.producName);
+        mCant = findViewById(R.id.cant);
 
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        final String email = user.getEmail();
 
-        final Spinner mProdConsul = findViewById(R.id.search);
-
-        Button mSearch = findViewById(R.id.consultar);
-        mSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String prod = mProdConsul.getSelectedItem().toString();
-                        readData(prod);
-                   }
-        });
 
         Button mDelete = findViewById(R.id.delete);
         mDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mProductName = findViewById(R.id.producName);
-                mCant = findViewById(R.id.cant);
 
                 try {
                     Integer.parseInt(mCant.getText().toString());
-                    saveData(mProductName.getSelectedItem().toString(), mCant.getText().toString(), 0);
+                    if ( email.equals("seller@gmail.com")){
+                        saveData(mProductName.getSelectedItem().toString(), mCant.getText().toString(), 0, email);
+                    }else{
+                        Toast.makeText(getApplicationContext(), "Usuario sin permisos !", Toast.LENGTH_LONG).show();
+                    }
                 } catch (NumberFormatException excepcion) {
                     Toast.makeText(getApplicationContext(), "Cantidad no valida !", Toast.LENGTH_LONG).show();
                 }
             }
         });
 
-
+        readData(mProductName.getSelectedItem().toString());
 
         Button mGuardar = findViewById(R.id.save);
         mGuardar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mProductName = findViewById(R.id.producName);
-                mCant = findViewById(R.id.cant);
 
                     try {
                         Integer.parseInt(mCant.getText().toString());
-                        saveData(mProductName.getSelectedItem().toString(), mCant.getText().toString(), 1);
+                        if ( email.equals("seller@gmail.com")){
+                            saveData(mProductName.getSelectedItem().toString(), mCant.getText().toString(), 1, email);
+                        }else{
+                            Toast.makeText(getApplicationContext(), "Usuario sin permisos !", Toast.LENGTH_LONG).show();
+                        }
                     } catch (NumberFormatException excepcion) {
                         Toast.makeText(getApplicationContext(), "Cantidad no valida !", Toast.LENGTH_LONG).show();
                     }
@@ -114,28 +111,67 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    public void cantKardex(String producto,  int cantFinal){
-        int cantidad;
-        if (cantFinal < 0)
-            cantidad = 0;
-        else
-            cantidad = cantFinal;
-        // Write a message to the database
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        String email = user.getEmail();
 
-        Product kardex = new Product(1, producto,Integer.toString(cantidad), email );
 
-        mDatabase.child(producto).setValue(kardex);
-        mCant = findViewById(R.id.cant);
-        mCant.setText("");
-        Toast.makeText(getApplicationContext(), "Datos guardados !", Toast.LENGTH_LONG).show();
+
+    public void saveData(String producto,  String cantidad, int tipo, String email){
+        mt2 = findViewById(R.id.text2);
+        String array = mt2.getText().toString();
+        String[] split = array.split("\n");
+        int day = 0;
+        switch (producto) {
+            case "Celular":
+                day = Integer.parseInt(split[0]);
+                break;
+            case "Mause":
+                day = Integer.parseInt(split[1]);
+                break;
+            case "Pantalla":
+                day = Integer.parseInt(split[2]);
+                break;
+            case "Parlante":
+                day = Integer.parseInt(split[3]);
+                break;
+            case "Portatil":
+                day = Integer.parseInt(split[4]);
+                break;
+            case "Teclado":
+                day = Integer.parseInt(split[5]);
+                break;
+
+        }
+            int data = 0;
+        if (tipo == 1){
+            data = day +Integer.parseInt(cantidad)  ;
+        }else{
+            data = day - Integer.parseInt(cantidad) ;
+
+        }
+
+        if (data < 0){
+            Toast.makeText(getApplicationContext(), "La cantidad a retirar supera el inventario !", Toast.LENGTH_LONG).show();
+        }else{
+            mDatabase = FirebaseDatabase.getInstance().getReference();
+
+            // Write a message to the database
+
+
+            Product kardex = new Product(1, producto, Integer.toString(data), email );
+
+            mDatabase.child(producto).setValue(kardex);
+
+            Toast.makeText(getApplicationContext(), "Datos guardados !", Toast.LENGTH_LONG).show();
+
+            mCant = findViewById(R.id.cant);
+            mCant.setText("");
+        }
+
 
     }
 
 
 
-
+/*
 
     public void saveData(final String producto, final String cantidad, final int tipo){
 
@@ -223,50 +259,53 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
+*/
     public void readData(final String prod){
         mDatabase = FirebaseDatabase.getInstance().getReference();
         // My top posts by number of stars
-        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+        mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){
-
-                    int i =1;
+                       String result = "";
+                       String cantis = "";
+                       String array = "";
+                       int i = 1;
+                       int j = 0;
                     for (DataSnapshot ds1: dataSnapshot.getChildren()) {
                        // Product post = dataSnapshot.child(prod).getValue(Product.class);
-                        int j=0;
                         for (DataSnapshot ds : dataSnapshot.getChildren()) {
                             String nombre = ds.child("producto").getValue(String.class);
                             String user = ds.child("usuario").getValue(String.class);
                             String cant = ds.child("cantidad").getValue(String.class);
+                            int k =  Integer.parseInt(cant);
+                                if (i == 1){
+                                    result += new String(nombre+"             "+user+"\n");
+                                    cantis += new String(cant+"\n");
 
-                            if (nombre.equals(prod)){
+                                    j += k;
+                                    array += cant+",";
 
-                                mTextProd = findViewById(R.id.textProd);
-                                mTextProd.setText(nombre);
-
-                                mTextCant = findViewById(R.id.textCant);
-                                mTextCant.setText(cant);
-
-                                mtextUser = findViewById(R.id.TextUser);
-                                mtextUser.setText(user);
-
-                            }else{
-                               // Toast.makeText(getApplicationContext(), "Crea el producto ingresando la cantidad", Toast.LENGTH_LONG).show();
-                            }
-                            j++;
+                                }
 
                         }
 
-
                         i++;
                     }
-                    // TODO: handle the post
+                    mt1 = findViewById(R.id.text1);
+                    mt2 = findViewById(R.id.text2);
+                    mSumCant = findViewById(R.id.editText2);
 
+                    mt1.setText(result);
+                    mt2.setText(cantis);
+                    mSumCant.setText("Cantidad ("+j+")");
+
+                   // String[] split = array.split(",");
+                    // new Cant(split[0], split[1], split[2], split[3], split[4], split[5]);
+                    //Toast.makeText(getApplicationContext(),array, Toast.LENGTH_LONG).show();
 
                 }else{
-                    Toast.makeText(getApplicationContext(), "Error en consulta", Toast.LENGTH_LONG).show();
+
                 }
 
             }
